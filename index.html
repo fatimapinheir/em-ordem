@@ -239,9 +239,12 @@ footer{border-top:1px solid var(--linha);padding:44px 0 56px;font-size:14px;colo
 footer .marca .n{font-size:20px}
 footer .cols{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;align-items:flex-start}
 footer a{color:var(--cinza)}footer a:hover{color:var(--vinho)}
+.cobranca-doc{padding:20px 22px}
 @media print{header,nav,footer,.abas,.app-titulo,.busca,.no-print{display:none!important}
 .cap .corpo{display:block!important}.cap{border:none;page-break-inside:avoid}
-body{background:#fff}.conteudo{border:none;padding:0}}
+body{background:#fff}.conteudo{border:none;padding:0}
+.cobranca-doc{padding:0;border:none;box-shadow:none}}
+@page{margin:12mm}
 </style>
 </head>
 <body>
@@ -578,6 +581,7 @@ const brDate=iso=>{if(!iso)return"";const[a,m,d]=iso.split("-");return d+"/"+m+"
 const hhmm=h=>h?h.slice(0,5):"";
 const uid=()=>(window.crypto&&crypto.randomUUID)?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
 const hoje=()=>new Date().toISOString().slice(0,10);
+const brl=v=>"R$ "+(+v).toFixed(2);
 
 function aviso(msg,ruim){
   const d=document.createElement("div");d.textContent=msg;
@@ -886,7 +890,7 @@ function renderAdmin(){
   recalcularCobranca();
   $("cb-historico").innerHTML=c.cobrancas.length?c.cobrancas.map(cb=>
     `<div class="linha-adm"><div><b style="font-family:Jost;font-weight:500;font-size:16px">Nº ${String(cb.numero).padStart(4,"0")} — ${brDate(cb.data_emissao)}</b><br>
-     <span style="color:var(--cinza);font-size:14.5px">${(+cb.total_horas).toFixed(1)}h · R$ ${(+cb.total_valor).toFixed(2)}</span></div>
+     <span style="color:var(--cinza);font-size:14.5px">${(+cb.total_horas).toFixed(1)}h · ${brl(cb.total_valor)}</span></div>
      <div class="acoes-mini"><button class="btn ghost mini" onclick="verCobranca('${cb.id}')">Ver / imprimir</button></div></div>`).join("")
     :`<p style="color:var(--cinza)">Nenhuma cobrança gerada ainda.</p>`;
 }
@@ -902,9 +906,9 @@ function recalcularCobranca(){
   const subtotal=horas*valorHora;
   const descTipo=$("cb-desconto-tipo").value,descValor=parseFloat($("cb-desconto-valor").value)||0;
   const desconto=calcularDesconto(subtotal,descTipo,descValor);
-  let html=`<b>${horas.toFixed(1)}h</b> selecionadas × R$ ${valorHora.toFixed(2)}/h = R$ ${subtotal.toFixed(2)}`;
-  if(desconto>0)html+=`<br>Desconto${descTipo==="percentual"?" ("+descValor.toFixed(2)+"%)":""}: <span style="color:var(--vinho)">− R$ ${desconto.toFixed(2)}</span>`;
-  html+=`<br><b style="font-size:17px">Total: R$ ${(subtotal-desconto).toFixed(2)}</b>`;
+  let html=`<b>${horas.toFixed(1)}h</b> selecionadas × ${brl(valorHora)}/h = ${brl(subtotal)}`;
+  if(desconto>0)html+=`<br>Desconto${descTipo==="percentual"?" ("+descValor.toFixed(2)+"%)":""}: <span style="color:var(--vinho)">− ${brl(desconto)}</span>`;
+  html+=`<br><b style="font-size:17px">Total: ${brl(subtotal-desconto)}</b>`;
   $("cb-totais").innerHTML=html;
 }
 
@@ -1083,7 +1087,7 @@ function verCobranca(id){
   const cb=atual.cobrancas.find(x=>x.id===id);if(!cb)return;
   const c=atual;
   const itens=c.horas.filter(h=>h.cobranca_id===id).sort((a,b)=>a.data.localeCompare(b.data));
-  $("cb-resultado").innerHTML=`<div class="box">
+  $("cb-resultado").innerHTML=`<div class="box cobranca-doc">
     <div class="linha-adm no-print" style="border:none;padding:0 0 16px">
       <b>Cobrança nº ${String(cb.numero).padStart(4,"0")}</b>
       <div class="acoes-mini">
@@ -1091,47 +1095,47 @@ function verCobranca(id){
         <button class="btn ghost mini" onclick="document.getElementById('cb-resultado').style.display='none'">Fechar</button>
       </div>
     </div>
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-bottom:26px">
-      <div><span class="rotulo">em ordem</span><h2 style="margin-top:6px">Cobrança de horas</h2></div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-bottom:16px">
+      <div><span class="rotulo">em ordem</span><h2 style="margin-top:4px;font-size:21px">Cobrança de horas</h2></div>
       <div style="text-align:right">
-        <div class="mono" style="font-size:13px;color:var(--cinza)">Nº ${String(cb.numero).padStart(4,"0")}</div>
-        <div class="mono" style="font-size:13px;color:var(--cinza)">${brDate(cb.data_emissao)}</div>
+        <div class="mono" style="font-size:12.5px;color:var(--cinza)">Nº ${String(cb.numero).padStart(4,"0")}</div>
+        <div class="mono" style="font-size:12.5px;color:var(--cinza)">${brDate(cb.data_emissao)}</div>
       </div>
     </div>
-    <div class="col2" style="margin-bottom:22px">
-      <div><label class="f">Cobrado de</label><p style="margin:4px 0">${esc(c.nome)}${c.cnpj?"<br>CNPJ "+esc(c.cnpj):""}</p></div>
-      <div><label class="f">Emitido por</label><p style="margin:4px 0">Fátima Pinheiro<br>Consultoria em estoque, notas fiscais e fechamento</p></div>
+    <div class="col2" style="margin-bottom:14px">
+      <div><label class="f" style="margin-top:0">Cobrado de</label><p style="margin:3px 0">${esc(c.nome)}${c.cnpj?"<br>CNPJ "+esc(c.cnpj):""}</p></div>
+      <div><label class="f" style="margin-top:0">Emitido por</label><p style="margin:3px 0">Fátima Pinheiro<br>Consultoria em estoque, notas fiscais e fechamento</p></div>
     </div>
-    <table style="width:100%;border-collapse:collapse;margin-top:10px">
+    <table style="width:100%;border-collapse:collapse;margin-top:4px">
       <thead><tr style="border-bottom:1px solid var(--linha)">
-        <th style="text-align:left;padding:8px 6px;font-size:12px;color:var(--cinza-claro);text-transform:uppercase">Data</th>
-        <th style="text-align:left;padding:8px 6px;font-size:12px;color:var(--cinza-claro);text-transform:uppercase">Descrição</th>
-        <th style="text-align:right;padding:8px 6px;font-size:12px;color:var(--cinza-claro);text-transform:uppercase">Horas</th>
-        <th style="text-align:right;padding:8px 6px;font-size:12px;color:var(--cinza-claro);text-transform:uppercase">Valor</th>
+        <th style="text-align:left;padding:5px 6px;font-size:11px;color:var(--cinza-claro);text-transform:uppercase">Data</th>
+        <th style="text-align:left;padding:5px 6px;font-size:11px;color:var(--cinza-claro);text-transform:uppercase">Descrição</th>
+        <th style="text-align:right;padding:5px 6px;font-size:11px;color:var(--cinza-claro);text-transform:uppercase">Horas</th>
+        <th style="text-align:right;padding:5px 6px;font-size:11px;color:var(--cinza-claro);text-transform:uppercase">Valor</th>
       </tr></thead>
       <tbody>${itens.map(h=>{
         const etapa=c.etapas.find(e=>e.id===h.etapa_id);
         return `<tr style="border-bottom:1px solid var(--linha)">
-          <td class="mono" style="padding:10px 6px;font-size:13px">${brDate(h.data)}</td>
-          <td style="padding:10px 6px;font-size:14px">${esc(h.comentario||"—")}${etapa?`<br><span style="color:var(--cinza-claro);font-size:12px">${esc(etapa.nome)}</span>`:""}</td>
-          <td class="mono" style="padding:10px 6px;font-size:13px;text-align:right">${(+h.horas).toFixed(1)}h</td>
-          <td class="mono" style="padding:10px 6px;font-size:13px;text-align:right">R$ ${(+h.horas*cb.valor_hora).toFixed(2)}</td>
+          <td class="mono" style="padding:6px;font-size:12.5px;white-space:nowrap">${brDate(h.data)}</td>
+          <td style="padding:6px;font-size:13px">${esc(h.comentario||"—")}${etapa?` <span style="color:var(--cinza-claro);font-size:11.5px">— ${esc(etapa.nome)}</span>`:""}</td>
+          <td class="mono" style="padding:6px;font-size:12.5px;text-align:right;white-space:nowrap">${(+h.horas).toFixed(1)}h</td>
+          <td class="mono" style="padding:6px;font-size:12.5px;text-align:right;white-space:nowrap">${brl(+h.horas*cb.valor_hora)}</td>
         </tr>`;
       }).join("")}</tbody>
     </table>
     ${(()=>{
       const subtotal=(+cb.total_horas)*(+cb.valor_hora);
       const desconto=subtotal-(+cb.total_valor);
-      return `<div style="display:flex;justify-content:flex-end;margin-top:18px">
+      return `<div style="display:flex;justify-content:flex-end;margin-top:12px">
       <div style="text-align:right">
-        <div style="color:var(--cinza);font-size:13px">${(+cb.total_horas).toFixed(1)}h × R$ ${(+cb.valor_hora).toFixed(2)}/h = R$ ${subtotal.toFixed(2)}</div>
-        ${desconto>0?`<div style="color:var(--vinho);font-size:13px;margin-top:2px">Desconto${cb.desconto_tipo==="percentual"?" ("+(+cb.desconto_valor).toFixed(2)+"%)":""}: − R$ ${desconto.toFixed(2)}</div>`:""}
-        <div style="font-family:Jost;font-size:26px;margin-top:4px">R$ ${(+cb.total_valor).toFixed(2)}</div>
+        <div style="color:var(--cinza);font-size:12.5px">${(+cb.total_horas).toFixed(1)}h × ${brl(cb.valor_hora)}/h = ${brl(subtotal)}</div>
+        ${desconto>0?`<div style="color:var(--vinho);font-size:12.5px;margin-top:2px">Desconto${cb.desconto_tipo==="percentual"?" ("+(+cb.desconto_valor).toFixed(2)+"%)":""}: − ${brl(desconto)}</div>`:""}
+        <div style="font-family:Jost;font-size:21px;margin-top:3px">${brl(cb.total_valor)}</div>
       </div>
     </div>`;
     })()}
-    ${cb.observacao?`<p style="margin-top:18px;color:var(--cinza);font-size:14px">${esc(cb.observacao)}</p>`:""}
-    <div class="aviso" style="margin-top:26px"><b>Dados para pagamento</b><br>${esc(cb.dados_pagamento||"").replace(/\n/g,"<br>")}</div>
+    ${cb.observacao?`<p style="margin-top:12px;color:var(--cinza);font-size:13px">${esc(cb.observacao)}</p>`:""}
+    <div class="aviso" style="margin-top:16px;padding:12px 16px"><b>Dados para pagamento</b><br>${esc(cb.dados_pagamento||"").replace(/\n/g,"<br>")}</div>
   </div>`;
   $("cb-resultado").style.display="";
   $("cb-resultado").scrollIntoView({behavior:"smooth"});

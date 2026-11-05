@@ -527,6 +527,14 @@ body{background:#fff}.conteudo{border:none;padding:0}}
           </div>
           <label class="f">Horas ainda não cobradas</label>
           <div id="cb-itens" style="margin-top:10px"></div>
+          <label class="f">Desconto (opcional)</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input id="cb-desconto-valor" type="number" min="0" step="0.01" placeholder="0" class="mono" style="flex:1 1 140px" oninput="recalcularCobranca()">
+            <select id="cb-desconto-tipo" style="flex:0 0 130px" onchange="recalcularCobranca()">
+              <option value="valor">R$ (fixo)</option>
+              <option value="percentual">% (percentual)</option>
+            </select>
+          </div>
           <div id="cb-totais" class="aviso" style="margin-top:18px"></div>
           <label class="f">Dados para pagamento</label>
           <textarea id="cb-pagamento" placeholder="Pix, banco, agência, conta..."></textarea>
@@ -865,6 +873,8 @@ function renderAdmin(){
   $("cb-resultado").style.display="none";$("cb-resultado").innerHTML="";
   $("cb-valor-hora").value=c.valor_hora||"";
   $("cb-data").value=hoje();
+  $("cb-desconto-valor").value="";
+  $("cb-desconto-tipo").value="valor";
   $("cb-pagamento").value=configPagamento;
   $("cb-obs").value="";
   const naoCobradas=c.horas.filter(h=>!h.cobranca_id).sort((a,b)=>a.data.localeCompare(b.data));
@@ -880,11 +890,22 @@ function renderAdmin(){
      <div class="acoes-mini"><button class="btn ghost mini" onclick="verCobranca('${cb.id}')">Ver / imprimir</button></div></div>`).join("")
     :`<p style="color:var(--cinza)">Nenhuma cobrança gerada ainda.</p>`;
 }
+function calcularDesconto(subtotal,tipo,valor){
+  if(!valor||valor<=0)return 0;
+  const bruto=tipo==="percentual"?subtotal*valor/100:valor;
+  return Math.max(0,Math.min(bruto,subtotal));
+}
 function recalcularCobranca(){
   const valorHora=parseFloat($("cb-valor-hora").value)||0;
   let horas=0;
   document.querySelectorAll("#cb-itens input[type=checkbox]:checked").forEach(cb=>horas+=parseFloat(cb.dataset.horas));
-  $("cb-totais").innerHTML=`<b>${horas.toFixed(1)}h</b> selecionadas × R$ ${valorHora.toFixed(2)}/h = <b>R$ ${(horas*valorHora).toFixed(2)}</b>`;
+  const subtotal=horas*valorHora;
+  const descTipo=$("cb-desconto-tipo").value,descValor=parseFloat($("cb-desconto-valor").value)||0;
+  const desconto=calcularDesconto(subtotal,descTipo,descValor);
+  let html=`<b>${horas.toFixed(1)}h</b> selecionadas × R$ ${valorHora.toFixed(2)}/h = R$ ${subtotal.toFixed(2)}`;
+  if(desconto>0)html+=`<br>Desconto${descTipo==="percentual"?" ("+descValor.toFixed(2)+"%)":""}: <span style="color:var(--vinho)">− R$ ${desconto.toFixed(2)}</span>`;
+  html+=`<br><b style="font-size:17px">Total: R$ ${(subtotal-desconto).toFixed(2)}</b>`;
+  $("cb-totais").innerHTML=html;
 }
 
 async function salvarCliente(){
@@ -1037,9 +1058,14 @@ async function gerarCobranca(){
   const dataEmissao=$("cb-data").value||hoje();
   const itens=atual.horas.filter(h=>ids.includes(h.id));
   const totalHoras=itens.reduce((s,h)=>s+ +h.horas,0);
-  const totalValor=totalHoras*valorHora;
+  const subtotal=totalHoras*valorHora;
+  const descTipo=$("cb-desconto-tipo").value,descValor=parseFloat($("cb-desconto-valor").value)||0;
+  const desconto=calcularDesconto(subtotal,descTipo,descValor);
+  const totalValor=subtotal-desconto;
   const r=await sb.from("cobrancas").insert({cliente_id:atual.id,data_emissao:dataEmissao,valor_hora:valorHora,
-    total_horas:totalHoras,total_valor:totalValor,dados_pagamento:pagamento,observacao:$("cb-obs").value.trim()
+    total_horas:totalHoras,total_valor:totalValor,
+    desconto_tipo:desconto>0?descTipo:null,desconto_valor:desconto>0?descValor:null,
+    dados_pagamento:pagamento,observacao:$("cb-obs").value.trim()
   }).select().single();
   if(!checar(r))return;
   const r2=await sb.from("apontamentos_horas").update({cobranca_id:r.data.id}).in("id",ids);
@@ -1093,12 +1119,17 @@ function verCobranca(id){
         </tr>`;
       }).join("")}</tbody>
     </table>
-    <div style="display:flex;justify-content:flex-end;margin-top:18px">
+    ${(()=>{
+      const subtotal=(+cb.total_horas)*(+cb.valor_hora);
+      const desconto=subtotal-(+cb.total_valor);
+      return `<div style="display:flex;justify-content:flex-end;margin-top:18px">
       <div style="text-align:right">
-        <div style="color:var(--cinza);font-size:13px">${(+cb.total_horas).toFixed(1)}h × R$ ${(+cb.valor_hora).toFixed(2)}/h</div>
+        <div style="color:var(--cinza);font-size:13px">${(+cb.total_horas).toFixed(1)}h × R$ ${(+cb.valor_hora).toFixed(2)}/h = R$ ${subtotal.toFixed(2)}</div>
+        ${desconto>0?`<div style="color:var(--vinho);font-size:13px;margin-top:2px">Desconto${cb.desconto_tipo==="percentual"?" ("+(+cb.desconto_valor).toFixed(2)+"%)":""}: − R$ ${desconto.toFixed(2)}</div>`:""}
         <div style="font-family:Jost;font-size:26px;margin-top:4px">R$ ${(+cb.total_valor).toFixed(2)}</div>
       </div>
-    </div>
+    </div>`;
+    })()}
     ${cb.observacao?`<p style="margin-top:18px;color:var(--cinza);font-size:14px">${esc(cb.observacao)}</p>`:""}
     <div class="aviso" style="margin-top:26px"><b>Dados para pagamento</b><br>${esc(cb.dados_pagamento||"").replace(/\n/g,"<br>")}</div>
   </div>`;

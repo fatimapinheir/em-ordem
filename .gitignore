@@ -1,0 +1,7 @@
+# Local Netlify folder
+.netlify
+
+# Local Claude Code config (per-machine, not shared)
+.claude/
+
+.DS_Store

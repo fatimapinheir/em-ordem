@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>em ordem. — consultoria em estoque, notas fiscais e fechamento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--creme:#F5F2ED;--creme-2:#FFFDFA;--tinta:#111111;--vinho:#7B1E32;--vinho-claro:#F3E7E9;
+--verde:#2F6B4F;--verde-claro:#E3EDE6;
+--linha:#E2DCD2;--linha-forte:#CFC7BA;--cinza:#6B655D;--cinza-claro:#9A938A;--r:4px;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{overflow-x:hidden;max-width:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+body{margin:0;background:var(--creme);color:var(--tinta);font-family:Inter,system-ui,sans-serif;
+font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-wrap:break-word}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px;width:100%}
+@media(max-width:560px){.wrap{padding:0 18px}}
+h1,h2,h3,h4{font-family:Jost,sans-serif;font-weight:500;letter-spacing:-.01em;line-height:1.15;margin:0}
+.mono{font-family:"IBM Plex Mono",monospace}
+.ponto{color:var(--vinho)}
+.rotulo{font-family:Jost;font-weight:500;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--cinza-claro)}
+.rotulo::after{content:".";color:var(--vinho)}
+header{position:sticky;top:0;z-index:50;background:rgba(245,242,237,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--linha)}
+#topo-app{background:var(--tinta);border-bottom:none}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:18px;padding-bottom:18px}
+@media(max-width:560px){.bar{padding-top:14px;padding-bottom:14px}}
+.marca{display:flex;flex-direction:column;line-height:1;text-decoration:none;color:var(--tinta);min-width:0}
+.marca .n{font-family:Jost;font-weight:500;font-size:24px;letter-spacing:.06em}
+.marca .s{font-family:Jost;font-weight:400;font-size:10px;letter-spacing:.42em;color:var(--cinza);margin-top:5px}
+@media(max-width:560px){.marca .n{font-size:20px}.marca .s{letter-spacing:.3em;font-size:9px}}
+#topo-app .marca{color:var(--creme)}#topo-app .marca .s{color:var(--cinza-claro)}
+.ctx{display:flex;align-items:center;gap:14px;min-width:0}
+.ctx .quem{color:var(--creme);font-family:Jost;font-size:15px;letter-spacing:.02em;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ctx .quem small{display:block;font-family:"IBM Plex Mono";font-size:11.5px;color:var(--cinza-claro);margin-top:3px}
+@media(max-width:560px){.ctx .quem{display:none}}
+nav{display:flex;align-items:center;gap:28px}
+nav a{color:var(--cinza);text-decoration:none;font-size:14.5px;position:relative;padding-bottom:2px}
+nav a:hover{color:var(--tinta)}
+nav a:not(.btn)::after{content:"";position:absolute;left:0;bottom:-2px;width:0;height:1px;background:var(--vinho);transition:width .25s}
+nav a:not(.btn):hover::after{width:100%}
+@media(max-width:820px){nav a:not(.btn){display:none}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--tinta);color:var(--creme-2);
+padding:12px 22px;border-radius:var(--r);font-family:Jost;font-weight:500;font-size:14.5px;letter-spacing:.02em;
+text-decoration:none;border:1px solid var(--tinta);cursor:pointer;transition:background .2s,color .2s,border-color .2s;max-width:100%}
+.btn:hover{background:var(--vinho);border-color:var(--vinho)}
+.btn:disabled{opacity:.5;cursor:wait}
+.btn.ghost{background:transparent;color:var(--tinta);border-color:var(--linha-forte)}
+.btn.ghost:hover{background:transparent;border-color:var(--tinta)}
+.btn.mini{padding:7px 13px;font-size:13px}
+.btn.perigo{background:transparent;color:var(--vinho);border-color:var(--linha-forte)}
+.btn.perigo:hover{background:var(--vinho);color:#fff;border-color:var(--vinho)}
+#topo-app .btn.ghost{color:var(--creme);border-color:#413C37}
+#topo-app .btn.ghost:hover{border-color:var(--creme)}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,label:focus-visible{outline:2px solid var(--vinho);outline-offset:3px}
+.view{display:none}.view.on{display:block}
+.hero{padding-top:88px;padding-bottom:76px;display:grid;grid-template-columns:1.15fr .85fr;gap:64px;align-items:center}
+@media(max-width:940px){.hero{grid-template-columns:1fr;gap:40px;padding-top:48px;padding-bottom:46px}}
+.hero h1{font-size:clamp(34px,5.6vw,62px);font-weight:400;letter-spacing:-.025em;margin:22px 0 0;max-width:15ch}
+.hero h1 b{font-weight:600}
+.hero p.sub{font-size:18.5px;color:var(--cinza);max-width:46ch;margin:24px 0 34px;line-height:1.65}
+@media(max-width:560px){.hero p.sub{font-size:17px}}
+.acoes{display:flex;gap:14px;flex-wrap:wrap}
+.provas{display:flex;gap:34px;margin-top:44px;padding-top:26px;border-top:1px solid var(--linha);flex-wrap:wrap}
+.prova .num{font-family:Jost;font-size:30px;font-weight:400;letter-spacing:-.02em}
+.prova .txt{font-size:13.5px;color:var(--cinza);margin-top:2px}
+.preview{background:var(--creme-2);border:1px solid var(--linha);border-radius:8px;padding:26px 24px;
+box-shadow:0 1px 2px rgba(17,17,17,.04),0 12px 32px -18px rgba(17,17,17,.22)}
+@media(max-width:560px){.preview{padding:22px 18px}}
+.preview .topo{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:16px;border-bottom:1px solid var(--linha)}
+.preview .emp{font-family:Jost;font-size:17px;font-weight:500}
+.preview .bloco{padding:16px 0;border-bottom:1px solid var(--linha)}
+.preview .bloco:last-child{border-bottom:none;padding-bottom:0}
+.preview .k{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--cinza-claro);font-family:Jost;font-weight:500}
+.preview .v{font-family:Jost;font-size:18px;margin-top:4px}
+.preview .v small{display:block;font-family:Inter;font-size:13.5px;color:var(--cinza);margin-top:3px;letter-spacing:0}
+.barra{display:flex;gap:5px;margin-top:10px}
+.barra i{flex:1;height:4px;border-radius:2px;background:var(--linha)}
+.barra i.f{background:var(--verde)}.barra i.a{background:var(--vinho)}
+section{padding:84px 0;border-top:1px solid var(--linha)}
+@media(max-width:760px){section{padding:52px 0}}
+.sec-h{max-width:60ch;margin-bottom:44px}
+.sec-h h2{font-size:clamp(24px,3.4vw,38px);font-weight:400;letter-spacing:-.02em;margin-top:14px}
+.sec-h p{color:var(--cinza);font-size:17px;margin:14px 0 0}
+.dois{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:820px){.dois{grid-template-columns:1fr}}
+.card{background:var(--creme-2);border:1px solid var(--linha);border-radius:var(--r);padding:26px 24px;transition:border-color .2s}
+@media(max-width:560px){.card{padding:22px 18px}}
+.card:hover{border-color:var(--linha-forte)}
+.card h3{font-size:19px;font-weight:500;margin-bottom:8px}
+.card p{margin:0;color:var(--cinza);font-size:15.5px}
+.card.mau h3::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--vinho);margin-right:9px;vertical-align:middle}
+.lista{list-style:none;padding:0;margin:0}
+.lista li{padding:14px 0 14px 26px;border-bottom:1px solid var(--linha);position:relative;font-size:16px}
+.lista li:last-child{border-bottom:none}
+.lista li::before{content:"";position:absolute;left:0;top:22px;width:10px;height:1px;background:var(--vinho)}
+.etapas-pub{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+@media(max-width:880px){.etapas-pub{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.etapas-pub{grid-template-columns:1fr;gap:16px}}
+.etapa-pub{border-top:2px solid var(--tinta);padding-top:18px}
+.etapa-pub .n{font-family:"IBM Plex Mono";font-size:12px;color:var(--vinho);letter-spacing:.1em}
+.etapa-pub h3{font-size:19px;font-weight:500;margin:10px 0 8px}
+.etapa-pub p{margin:0;color:var(--cinza);font-size:15px}
+.contato-cta{background:var(--creme-2);border:1px solid var(--linha);border-radius:8px;padding:40px;text-align:center}
+@media(max-width:560px){.contato-cta{padding:28px 20px}}
+.contato-cta h2{font-size:clamp(22px,3vw,32px);font-weight:400}
+.contato-cta p{color:var(--cinza);margin:14px auto 26px;max-width:44ch}
+label.f{display:block;font-family:Jost;font-weight:500;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--cinza-claro);margin:18px 0 7px}
+input,textarea,select{width:100%;max-width:100%;padding:12px 14px;border:1px solid var(--linha-forte);background:var(--creme-2);
+font-family:Inter;font-size:16px;border-radius:var(--r);color:var(--tinta);transition:border-color .2s}
+input:hover,textarea:hover,select:hover{border-color:var(--cinza-claro)}
+input.mono{font-family:"IBM Plex Mono"}
+textarea{min-height:130px;line-height:1.6;resize:vertical}
+.entrar-tela{min-height:calc(100vh - 82px);display:flex;align-items:center;justify-content:center;padding:48px 18px}
+.login-wrap{width:100%;max-width:440px;background:var(--creme-2);border:1px solid var(--linha);border-radius:8px;padding:38px 34px;
+box-shadow:0 14px 40px -26px rgba(17,17,17,.35)}
+@media(max-width:560px){.login-wrap{padding:28px 22px}}
+.login-wrap h2{font-size:26px;font-weight:400;letter-spacing:-.01em}
+.erro{color:var(--vinho);font-size:14px;margin-top:14px;display:none}
+.volta{display:block;text-align:center;margin-top:22px;color:var(--cinza);font-size:14px;text-decoration:none}
+.volta:hover{color:var(--vinho)}
+.app{padding-top:34px;padding-bottom:64px}
+@media(max-width:560px){.app{padding-top:24px;padding-bottom:48px}}
+.app-titulo{margin-bottom:24px}
+.app-titulo h1{font-size:clamp(24px,3.4vw,34px);font-weight:400;letter-spacing:-.02em;margin-top:12px}
+.abas{display:flex;background:var(--creme-2);border:1px solid var(--linha);border-radius:8px 8px 0 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.abas::-webkit-scrollbar{height:0}
+.aba{flex:1;min-width:130px;padding:15px 12px;text-align:center;font-family:Jost;font-weight:500;font-size:14.5px;
+cursor:pointer;border:none;background:none;color:var(--cinza);white-space:nowrap;border-bottom:2px solid transparent;transition:color .2s,border-color .2s}
+@media(max-width:640px){.aba{min-width:auto;flex:0 0 auto;padding:14px 16px;font-size:14px}}
+.aba:hover{color:var(--tinta)}
+.aba.on{color:var(--tinta);border-bottom-color:var(--vinho)}
+.conteudo{border:1px solid var(--linha);border-top:none;background:var(--creme-2);padding:32px;border-radius:0 0 8px 8px}
+@media(max-width:640px){.conteudo{padding:22px 18px}}
+@media(max-width:400px){.conteudo{padding:20px 15px}}
+.pane{display:none}.pane.on{display:block}
+.item{display:grid;grid-template-columns:120px minmax(0,1fr) auto;gap:20px;align-items:center;padding:18px 0;border-bottom:1px solid var(--linha)}
+.item:last-child{border-bottom:none}
+.item>*{min-width:0}
+.item .data{font-family:"IBM Plex Mono";font-size:13px;color:var(--cinza);letter-spacing:.02em}
+.item h4{margin:0;font-family:Jost;font-size:17px;font-weight:500}
+.item p{margin:4px 0 0;font-size:14.5px;color:var(--cinza)}
+@media(max-width:660px){.item{grid-template-columns:1fr;gap:8px;padding:16px 0}}
+.tag{font-family:Jost;font-weight:500;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;
+padding:5px 11px;border:1px solid var(--linha-forte);border-radius:99px;white-space:nowrap;color:var(--cinza);display:inline-block}
+.tag.feito{color:var(--verde);border-color:var(--verde);background:var(--verde-claro)}
+.tag.agora{color:#fff;background:var(--vinho);border-color:var(--vinho)}
+.tag.neutro{color:var(--tinta);border-color:var(--linha-forte)}
+.tag.espera{color:var(--cinza-claro)}
+.destaque{background:var(--vinho-claro);border-radius:var(--r);padding:22px 24px;margin-bottom:26px}
+@media(max-width:560px){.destaque{padding:18px 18px}}
+.destaque .rot{font-family:Jost;font-weight:500;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--vinho)}
+.destaque h3{font-size:22px;font-weight:400;margin:8px 0 4px;letter-spacing:-.01em}
+.destaque p{margin:0;color:#6E5259;font-size:15.5px}
+
+/* ---- painel de progresso ---- */
+.progresso{display:flex;align-items:center;gap:26px;background:var(--creme);border:1px solid var(--linha);
+border-radius:8px;padding:24px 26px;margin-bottom:28px}
+@media(max-width:560px){.progresso{padding:20px 18px;gap:18px}}
+.anel{position:relative;width:96px;height:96px;flex:none;border-radius:50%;display:grid;place-items:center;
+background:conic-gradient(var(--verde) calc(var(--p) * 1%), var(--linha) 0)}
+@media(max-width:560px){.anel{width:78px;height:78px}}
+.anel span{width:72px;height:72px;border-radius:50%;background:var(--creme);display:grid;place-items:center;
+font-family:Jost;font-weight:500;font-size:21px;letter-spacing:-.02em}
+@media(max-width:560px){.anel span{width:58px;height:58px;font-size:18px}}
+.progresso .txt h3{font-size:19px;font-weight:500;margin-bottom:4px}
+.progresso .txt p{margin:0;color:var(--cinza);font-size:15px}
+@media(max-width:560px){.progresso .txt h3{font-size:17px}.progresso .txt p{font-size:14px}}
+.anel.vinho{background:conic-gradient(var(--vinho) calc(var(--p) * 1%), var(--linha) 0)}
+.progresso.excedido .txt h3{color:var(--vinho)}
+
+/* ---- linha do tempo ---- */
+.tl{position:relative;padding-left:36px;margin-top:16px}
+.tl-item{position:relative;padding-bottom:26px}
+.tl-item:last-child{padding-bottom:0}
+.tl-item::after{content:"";position:absolute;left:-26px;top:24px;bottom:0;width:2px;background:var(--linha)}
+.tl-item:last-child::after{display:none}
+.tl-item.feito::after{background:var(--verde)}
+.tl-item .dot{position:absolute;left:-36px;top:1px;width:22px;height:22px;border-radius:50%;
+background:var(--creme-2);border:2px solid var(--linha);display:grid;place-items:center}
+.tl-item.feito .dot{background:var(--verde);border-color:var(--verde)}
+.tl-item.feito .dot::after{content:"✓";color:#fff;font-size:12px;line-height:1}
+.tl-item.agora .dot{border-color:var(--vinho);box-shadow:0 0 0 4px var(--vinho-claro)}
+.tl-item.agora .dot::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--vinho)}
+.tl-item h4{font-family:Jost;font-size:17px;font-weight:500;margin:0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.tl-item .num{font-family:"IBM Plex Mono";font-size:11.5px;color:var(--cinza-claro)}
+.tl-item p{margin:5px 0 0;color:var(--cinza);font-size:15px}
+.tl-item.espera h4,.tl-item.espera p{color:var(--cinza-claro)}
+.hbar{height:6px;border-radius:3px;background:var(--linha);overflow:hidden;margin-top:10px}
+.hbar>i{display:block;height:100%;background:var(--vinho);border-radius:3px}
+.horas-lista{margin-top:10px;padding-top:8px;border-top:1px dashed var(--linha);display:flex;flex-direction:column;gap:6px}
+.horas-item{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13.5px;color:var(--cinza)}
+.horas-item b{color:var(--tinta);font-family:"IBM Plex Mono";font-size:12.5px;margin-right:6px;font-weight:500}
+.horas-form{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.horas-form input[type=number]{width:90px;flex:none}
+.horas-form input[type=date]{width:150px;flex:none}
+.horas-form input:not([type=number]):not([type=date]){flex:1 1 220px}
+
+.tarefa{display:flex;gap:13px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--linha)}
+.tarefa input{width:auto;flex:none;margin-top:5px;accent-color:var(--verde)}
+.tarefa span{font-size:15.5px}
+.tarefa.feita span{text-decoration:line-through;color:var(--cinza-claro)}
+.cap{border:1px solid var(--linha);border-radius:var(--r);margin-bottom:10px;background:var(--creme-2);overflow:hidden;transition:border-color .2s}
+.cap:hover,.cap.aberto{border-color:var(--linha-forte)}
+.cap>button{width:100%;text-align:left;background:none;border:none;padding:18px 20px;cursor:pointer;
+font-family:Jost;font-weight:500;font-size:17px;color:var(--tinta);display:flex;justify-content:space-between;gap:14px;align-items:center}
+@media(max-width:560px){.cap>button{padding:16px 15px;font-size:16px}}
+.cap>button>span:first-child{min-width:0}
+.cap .num{font-family:"IBM Plex Mono";font-size:11.5px;color:var(--cinza-claro);margin-right:12px}
+.cap .sinal{color:var(--vinho);font-size:19px;line-height:1;flex:none;transition:transform .2s}
+.cap.aberto .sinal{transform:rotate(45deg)}
+.cap .corpo{display:none;padding:0 20px 22px;font-size:15.8px;white-space:pre-wrap;color:#33302C;line-height:1.75}
+@media(max-width:560px){.cap .corpo{padding:0 15px 18px;font-size:15.4px}}
+.cap.aberto .corpo{display:block}
+mark{background:var(--vinho-claro);color:var(--vinho);padding:0 3px;border-radius:2px}
+.img-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.img-grid a{display:block;line-height:0}
+.img-grid img{width:150px;height:112px;object-fit:cover;border-radius:4px;border:1px solid var(--linha);display:block;background:var(--linha)}
+.miniatura{position:relative}
+.miniatura .btn.perigo.mini{position:absolute;top:5px;right:5px;padding:1px 9px;line-height:1.6;font-size:14px;background:rgba(17,17,17,.6);color:#fff;border-color:transparent}
+.miniatura .btn.perigo.mini:hover{background:var(--vinho)}
+.img-erro{width:150px;height:112px;border-radius:4px;border:1px dashed var(--linha-forte);display:flex;align-items:center;justify-content:center;color:var(--cinza-claro);font-size:12px;text-align:center;padding:8px}
+.linha-adm{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 0;border-bottom:1px solid var(--linha);flex-wrap:wrap}
+.linha-adm>div:first-child{min-width:0;flex:1 1 240px}
+.acoes-mini{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.box{border:1px solid var(--linha);border-radius:var(--r);background:var(--creme);padding:24px;margin-bottom:22px}
+@media(max-width:560px){.box{padding:18px 16px}}
+.box h3{font-size:18px;font-weight:500;margin-bottom:2px}
+.box .obs{color:var(--cinza);font-size:14.5px;margin:0 0 6px}
+.aviso{background:var(--creme);border-left:2px solid var(--vinho);padding:16px 20px;font-size:15px;color:var(--cinza);margin-bottom:24px;border-radius:0 var(--r) var(--r) 0}
+@media(max-width:560px){.aviso{padding:14px 16px;font-size:14.5px}}
+.aviso b{color:var(--tinta)}
+.col2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:660px){.col2{grid-template-columns:1fr}}
+footer{border-top:1px solid var(--linha);padding:44px 0 56px;font-size:14px;color:var(--cinza);background:var(--creme-2)}
+footer .marca .n{font-size:20px}
+footer .cols{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;align-items:flex-start}
+footer a{color:var(--cinza)}footer a:hover{color:var(--vinho)}
+@media print{header,nav,footer,.abas,.app-titulo,.busca,.no-print{display:none!important}
+.cap .corpo{display:block!important}.cap{border:none;page-break-inside:avoid}
+body{background:#fff}.conteudo{border:none;padding:0}}
+</style>
+</head>
+<body>
+
+<header id="topo-site"><div class="wrap bar">
+  <a class="marca" href="#/"><span class="n">em ordem<span class="ponto">.</span></span><span class="s">CONSULTORIA</span></a>
+  <nav>
+    <a href="#/#problema">O problema</a>
+    <a href="#/#entrega">O que entrego</a>
+    <a href="#/#processo">Como funciona</a>
+    <a href="#/entrar" class="btn">Entrar</a>
+  </nav>
+</div></header>
+
+<header id="topo-app" style="display:none"><div class="wrap bar">
+  <a class="marca" href="#/"><span class="n">em ordem<span class="ponto">.</span></span><span class="s" id="app-sub">MINHA ÁREA</span></a>
+  <div class="ctx">
+    <div class="quem"><span id="app-quem">—</span><small id="app-quem2">—</small></div>
+    <button class="btn ghost mini" onclick="sair()">Sair</button>
+  </div>
+</div></header>
+
+<!-- ===== SITE ===== -->
+<div class="view on" id="v-site">
+<div class="wrap hero">
+  <div>
+    <span class="rotulo">Estoque, notas fiscais e fechamento mensal</span>
+    <h1>Seu negócio roda no sistema. E o sistema roda <b>em ordem<span class="ponto">.</span></b></h1>
+    <p class="sub">Organizo o estoque, a emissão de notas e o fechamento para o contador — e deixo sua equipe operando sozinha, com o manual da sua empresa sempre à mão.</p>
+    <div class="acoes">
+      <a href="https://wa.me/5584996377185" target="_blank" rel="noopener" class="btn">Falar no WhatsApp</a>
+      <a href="#/entrar" class="btn ghost">Já sou cliente</a>
+    </div>
+    <div class="provas">
+      <div class="prova"><div class="num">4 etapas</div><div class="txt">do diagnóstico ao acompanhamento</div></div>
+      <div class="prova"><div class="num">2 fechamentos</div><div class="txt">acompanhados junto com você</div></div>
+      <div class="prova"><div class="num">Acesso 24h</div><div class="txt">manual, agenda e pendências</div></div>
+    </div>
+  </div>
+  <div class="preview" aria-label="Exemplo da área do cliente">
+    <div class="topo"><span class="emp">Sua empresa</span><span class="tag agora">etapa 4 de 4</span></div>
+    <div class="bloco"><div class="k">Próximo encontro</div><div class="v">5 de agosto, 9h<small>Fechamento assistido, na loja</small></div></div>
+    <div class="bloco"><div class="k">Manual da empresa</div><div class="v">5 capítulos<small>Sempre na versão mais recente</small></div></div>
+    <div class="bloco"><div class="k">Andamento</div><div class="barra"><i class="f"></i><i class="f"></i><i class="f"></i><i class="a"></i></div></div>
+  </div>
+</div>
+
+<section id="problema"><div class="wrap">
+  <div class="sec-h"><span class="rotulo">Por que existe</span>
+  <h2>Consultoria que se perde no WhatsApp não vira rotina.</h2>
+  <p>A orientação é boa, o problema é onde ela fica guardada.</p></div>
+  <div class="dois">
+    <div class="card mau"><h3>Como costuma ser</h3><p>A explicação vira áudio. Três meses depois, ninguém acha. O funcionário novo não tem onde consultar, e a data marcada some no meio das mensagens.</p></div>
+    <div class="card"><h3>Como fica aqui</h3><p>Cada empresa tem sua área: manual em texto com busca por palavra, agenda com as datas confirmadas e a lista do que ficou pendente com você.</p></div>
+  </div>
+</div></section>
+
+<section id="entrega"><div class="wrap">
+  <div class="sec-h"><span class="rotulo">Escopo</span><h2>O que fica pronto ao fim da consultoria</h2></div>
+  <div class="dois">
+    <ul class="lista">
+      <li>Estoque contado, cadastrado e com rotina de entrada e saída definida</li>
+      <li>Emissão de NF-e e NFC-e passo a passo, com os erros mais comuns mapeados</li>
+      <li>Calendário de fechamento mensal: o que enviar ao contador e até que dia</li>
+      <li>Conferência de notas de compra contra o que entrou de fato</li>
+    </ul>
+    <ul class="lista">
+      <li>Leitura dos relatórios do seu sistema: giro, ruptura, margem, curva ABC</li>
+      <li>Treinamento da equipe que opera o caixa e o estoque</li>
+      <li>Manual escrito para a sua empresa, com as telas do sistema que você usa</li>
+      <li>Acesso permanente à área do cliente, com o manual sempre atualizado</li>
+    </ul>
+  </div>
+</div></section>
+
+<section id="processo"><div class="wrap">
+  <div class="sec-h"><span class="rotulo">Como funciona</span><h2>Quatro etapas, na ordem</h2>
+  <p>Você acompanha em qual delas está pela sua área, e eu registro o que foi feito em cada encontro.</p></div>
+  <div class="etapas-pub">
+    <div class="etapa-pub"><div class="n">ETAPA 01</div><h3>Diagnóstico</h3><p>Entendo o sistema que você usa, o volume de notas e como o estoque é controlado hoje.</p></div>
+    <div class="etapa-pub"><div class="n">ETAPA 02</div><h3>Implantação</h3><p>Contagem, ajuste de cadastros e definição das rotinas, junto com quem opera.</p></div>
+    <div class="etapa-pub"><div class="n">ETAPA 03</div><h3>Treinamento</h3><p>A equipe emite nota e lê relatório sozinha, com você acompanhando.</p></div>
+    <div class="etapa-pub"><div class="n">ETAPA 04</div><h3>Acompanhamento</h3><p>Manual publicado na sua área e os dois primeiros fechamentos feitos comigo ao lado.</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap"><div class="contato-cta">
+  <span class="rotulo">Primeiro contato</span>
+  <h2>Vamos ver como está sua empresa hoje</h2>
+  <p>Me chame no WhatsApp e conte qual sistema você usa. A conversa inicial não custa nada.</p>
+  <div class="acoes" style="justify-content:center">
+    <a href="https://wa.me/5584996377185" target="_blank" rel="noopener" class="btn">WhatsApp (84) 99637-7185</a>
+    <a href="mailto:fatimapinheir@gmail.com" class="btn ghost">Enviar e-mail</a>
+  </div>
+</div></div></section>
+
+<footer><div class="wrap cols">
+  <div>
+    <div class="marca"><span class="n">em ordem<span class="ponto">.</span></span><span class="s">CONSULTORIA</span></div>
+    <p style="margin:16px 0 0;max-width:38ch">Estoque, notas fiscais e fechamento mensal para pequenos negócios.</p>
+  </div>
+  <div>
+    <span class="rotulo">Contato</span>
+    <p style="margin:12px 0 0">
+      <a href="https://wa.me/5584996377185" target="_blank" rel="noopener">WhatsApp (84) 99637-7185</a><br>
+      <a href="mailto:fatimapinheir@gmail.com">fatimapinheir@gmail.com</a><br>
+      Segunda a sexta, 8h às 18h</p>
+  </div>
+  <div>
+    <span class="rotulo">Acesso</span>
+    <p style="margin:12px 0 0"><a href="#/entrar">Área do cliente</a><br><a href="#/entrar">Painel do consultor</a></p>
+  </div>
+</div></footer>
+</div>
+
+<!-- ===== ENTRAR ===== -->
+<div class="view" id="v-entrar">
+  <div class="entrar-tela"><div class="login-wrap">
+    <span class="rotulo">Acesso restrito</span>
+    <h2 style="margin-top:12px">Entrar</h2>
+    <p style="color:var(--cinza);font-size:15px;margin:10px 0 0">Use o e-mail cadastrado e o código de acesso que recebeu na primeira visita.</p>
+    <label class="f" for="usuario">E-mail</label>
+    <input id="usuario" type="email" inputmode="email" autocapitalize="none" spellcheck="false" placeholder="seu@email.com" autocomplete="username">
+    <label class="f" for="codigo">Código de acesso</label>
+    <input id="codigo" type="password" placeholder="••••••••" autocomplete="current-password">
+    <div class="erro" id="erro"></div>
+    <button class="btn" style="width:100%;margin-top:24px" id="btn-entrar" onclick="entrar()">Entrar</button>
+    <p style="font-size:13.5px;color:var(--cinza);margin:18px 0 0;text-align:center">Perdeu o código? Chame no WhatsApp
+      <a href="https://wa.me/5584996377185" target="_blank" rel="noopener" style="color:var(--vinho)">(84) 99637-7185</a>.</p>
+    <a class="volta" href="#/">← Voltar ao site</a>
+  </div></div>
+</div>
+
+<!-- ===== MINHA ÁREA ===== -->
+<div class="view" id="v-area"><div class="wrap app">
+  <div class="app-titulo"><span class="rotulo">Minha área</span><h1 id="p-nome">—</h1>
+    <p class="mono" style="color:var(--cinza-claro);font-size:13px;margin:8px 0 0" id="p-info">—</p></div>
+  <div class="abas">
+    <button class="aba on" onclick="aba('c',0,this)">Andamento</button>
+    <button class="aba" onclick="aba('c',1,this)">Agenda</button>
+    <button class="aba" onclick="aba('c',2,this)">Manual</button>
+    <button class="aba" onclick="aba('c',3,this)">Pendências</button>
+  </div>
+  <div class="conteudo">
+    <div class="pane on" id="c0">
+      <div class="progresso">
+        <div class="anel" id="p-anel" style="--p:0"><span id="p-pct">0%</span></div>
+        <div class="txt"><h3 id="p-etapa">—</h3><p id="p-etapa-desc">—</p></div>
+      </div>
+      <div class="progresso" id="p-horas-box" style="display:none">
+        <div class="anel vinho" id="p-anel-horas" style="--p:0"><span id="p-horas-pct">0%</span></div>
+        <div class="txt"><h3 id="p-horas-tit">—</h3><p id="p-horas-desc">—</p>
+          <p id="p-horas-hist" class="mono" style="font-size:12px;color:var(--cinza-claro);margin-top:8px"></p></div>
+      </div>
+      <span class="rotulo">Linha do tempo</span>
+      <div class="tl" id="p-tl"></div>
+      <div style="height:34px"></div>
+      <span class="rotulo">Encontros realizados</span><div id="p-hist" style="margin-top:12px"></div>
+    </div>
+    <div class="pane" id="c1">
+      <div class="destaque"><div class="rot">Próximo encontro</div><h3 id="p-prox">—</h3><p id="p-prox-desc">—</p></div>
+      <span class="rotulo">Todas as datas</span><div id="p-agenda" style="margin-top:12px"></div>
+    </div>
+    <div class="pane" id="c2">
+      <div class="busca no-print"><input id="p-busca" placeholder="Buscar no manual: devolução, curva ABC…" oninput="renderManual()"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin:18px 0 16px">
+        <span class="mono" style="font-size:12.5px;color:var(--cinza-claro)" id="p-manual-versao">—</span>
+        <button class="btn ghost mini no-print" onclick="window.print()">Imprimir ou salvar em PDF</button>
+      </div>
+      <div id="p-manual"></div>
+    </div>
+    <div class="pane" id="c3">
+      <p style="margin-top:0;color:var(--cinza);font-size:15.5px">O que combinamos que fica com você até o próximo encontro.</p>
+      <div id="p-tarefas"></div>
+    </div>
+  </div>
+  <p style="text-align:center;color:var(--cinza);font-size:14px;margin-top:30px">Dúvida que o manual não responde?
+    <a href="https://wa.me/5584996377185" target="_blank" rel="noopener" style="color:var(--vinho)">Chame no WhatsApp (84) 99637-7185</a></p>
+</div></div>
+
+<!-- ===== PAINEL ===== -->
+<div class="view" id="v-painel"><div class="wrap app">
+  <div class="app-titulo"><span class="rotulo">Painel do consultor</span><h1>Meus clientes</h1>
+    <p style="color:var(--cinza);font-size:15px;margin:8px 0 0">O que você altera aqui aparece na área do cliente.</p></div>
+  <div class="abas">
+    <button class="aba on" onclick="aba('a',0,this)">Clientes</button>
+    <button class="aba" onclick="aba('a',1,this)">Agenda</button>
+    <button class="aba" onclick="aba('a',2,this)">Etapas</button>
+    <button class="aba" onclick="aba('a',3,this)">Manual</button>
+    <button class="aba" onclick="aba('a',4,this)">Pendências</button>
+    <button class="aba" onclick="aba('a',5,this)">Cobrança</button>
+  </div>
+  <div class="conteudo">
+    <div class="no-print">
+      <label class="f" for="sel-cliente" style="margin-top:0">Cliente selecionado</label>
+      <select id="sel-cliente" onchange="selecionar(this.value)"></select>
+    </div>
+    <div style="height:28px"></div>
+
+    <div class="pane on" id="a0">
+      <div class="box">
+        <h3>Dados do cliente</h3>
+        <p class="obs">O login dele é o e-mail cadastrado no Supabase.</p>
+        <div class="col2">
+          <div><label class="f">Nome da empresa</label><input id="f-nome"></div>
+          <div><label class="f">CNPJ (só números)</label><input id="f-cnpj" class="mono"></div>
+          <div><label class="f">Sistema que usa</label><input id="f-sistema"></div>
+          <div><label class="f">Cliente desde</label><input id="f-desde" placeholder="03/2026"></div>
+          <div><label class="f">Contato</label><input id="f-contato" placeholder="Nome · (00) 00000-0000"></div>
+          <div><label class="f">UID do usuário (Authentication)</label><input id="f-uid" class="mono" placeholder="cole aqui o UID"></div>
+          <div><label class="f">Valor da hora (R$)</label><input id="f-valor-hora" type="number" min="0" step="0.01" class="mono" placeholder="150.00"></div>
+        </div>
+        <div style="margin-top:22px" class="acoes-mini">
+          <button class="btn" onclick="salvarCliente()">Salvar alterações</button>
+          <button class="btn ghost" onclick="novoCliente()">Cadastrar cliente novo</button>
+        </div>
+      </div>
+      <div class="aviso"><b>Antes de cadastrar aqui</b>, crie o login do cliente no Supabase em Authentication → Add user, com o e-mail dele, e copie o UID que aparece na lista. É ele que liga a pessoa à empresa. O cliente novo já nasce com as quatro etapas e os cinco capítulos em branco.</div>
+
+      <div class="box">
+        <h3>Pacote de horas</h3>
+        <p class="obs">O total só muda por aqui, sempre com um motivo registrado — inclusive o pacote inicial contratado.</p>
+        <label class="f">Situação atual</label>
+        <p id="f-horas" class="mono" style="margin:0;font-size:15px">—</p>
+        <button class="btn ghost" style="margin-top:16px" onclick="adicionarHoras()">+ Adicionar horas ao pacote</button>
+        <label class="f">Histórico de acréscimos</label>
+        <div id="a-horas-hist"></div>
+      </div>
+    </div>
+
+    <div class="pane" id="a1">
+      <div class="box">
+        <h3>Marcar novo encontro</h3>
+        <p class="obs">Assim que salvar, aparece em destaque na agenda do cliente.</p>
+        <div class="col2">
+          <div><label class="f">Data</label><input type="date" id="g-data" class="mono"></div>
+          <div><label class="f">Hora</label><input type="time" id="g-hora" class="mono" value="09:00"></div>
+        </div>
+        <label class="f">Assunto</label><input id="g-titulo" placeholder="Fechamento de julho assistido">
+        <label class="f">Detalhe</label><input id="g-desc" placeholder="Presencial, na loja — 2h30">
+        <label class="f">Situação</label>
+        <select id="g-status"><option value="confirmado">confirmado</option><option value="a_confirmar">a confirmar</option></select>
+        <button class="btn" style="margin-top:20px" onclick="addEncontro()">Marcar encontro</button>
+      </div>
+      <div class="aviso">Depois da visita, clique em <b>Marcar como realizado</b>. O encontro sai da agenda e entra no histórico do cliente.</div>
+      <span class="rotulo">Encontros</span><div id="a-agenda" style="margin-top:10px"></div>
+    </div>
+
+    <div class="pane" id="a2">
+      <div class="aviso">Ao concluir uma etapa, a seguinte entra em andamento automaticamente e o percentual do cliente sobe.</div>
+      <div id="a-etapas"></div>
+    </div>
+
+    <div class="pane" id="a3">
+      <div class="aviso">O manual é texto dividido em capítulos, com fotos quando ajudar a explicar. Você edita e envia as imagens, salva, e o cliente já vê a versão nova.</div>
+      <div class="box">
+        <h3>Novo capítulo</h3>
+        <label class="f">Título</label><input id="m-titulo" placeholder="Como emitir nota de devolução">
+        <label class="f">Conteúdo</label><textarea id="m-texto" placeholder="Escreva o passo a passo como você explicaria na visita."></textarea>
+        <button class="btn" style="margin-top:18px" onclick="addCapitulo()">Publicar capítulo</button>
+      </div>
+      <span class="rotulo">Capítulos deste cliente</span><div id="a-manual" style="margin-top:14px"></div>
+    </div>
+
+    <div class="pane" id="a4">
+      <div class="box">
+        <h3>Nova pendência do cliente</h3>
+        <p class="obs">O que ficou com ele até o próximo encontro.</p>
+        <input id="t-texto" placeholder="Contar a gôndola de bebidas antes de 05/08">
+        <button class="btn" style="margin-top:18px" onclick="addPendencia()">Adicionar</button>
+      </div>
+      <div id="a-tarefas"></div>
+    </div>
+
+    <div class="pane" id="a5">
+      <div class="no-print" id="cb-ferramentas">
+        <div class="box">
+          <h3>Gerar cobrança</h3>
+          <p class="obs">Selecione as horas ainda não cobradas que entram nesta cobrança.</p>
+          <div class="col2">
+            <div><label class="f">Valor da hora (R$)</label><input id="cb-valor-hora" type="number" min="0" step="0.01" class="mono" oninput="recalcularCobranca()"></div>
+            <div><label class="f">Data de emissão</label><input id="cb-data" type="date" class="mono"></div>
+          </div>
+          <label class="f">Horas ainda não cobradas</label>
+          <div id="cb-itens" style="margin-top:10px"></div>
+          <div id="cb-totais" class="aviso" style="margin-top:18px"></div>
+          <label class="f">Dados para pagamento</label>
+          <textarea id="cb-pagamento" placeholder="Pix, banco, agência, conta..."></textarea>
+          <label class="f">Observação (opcional)</label>
+          <input id="cb-obs" placeholder="Ex: referente a setembro/2026">
+          <button class="btn" style="margin-top:20px" onclick="gerarCobranca()">Gerar cobrança</button>
+        </div>
+        <span class="rotulo">Cobranças já geradas</span>
+        <div id="cb-historico" style="margin-top:10px"></div>
+      </div>
+      <div id="cb-resultado" style="display:none"></div>
+    </div>
+  </div>
+</div></div>
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+const SUPABASE_URL = "https://rspjubdigbtaiiejyptq.supabase.co";
+const SUPABASE_KEY = "sb_publishable_Hl5ukq1LFss5_ZOD0Tqycg_zRPZi4bG";
+const EMAIL_CONSULTORA = "fatimapinheir@gmail.com";
+
+let guarda;
+try{ localStorage.setItem("__t","1"); localStorage.removeItem("__t"); guarda=localStorage; }
+catch(e){ const m={}; guarda={getItem:k=>k in m?m[k]:null,setItem:(k,v)=>{m[k]=v},removeItem:k=>{delete m[k]}}; }
+
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storage:guarda,persistSession:true,autoRefreshToken:true}});
+
+const ETAPAS_PADRAO=[
+ ["Diagnóstico","Levantamento do sistema, volume de notas e controle atual de estoque.","andamento"],
+ ["Implantação","Contagem, ajuste de cadastros e definição das rotinas.","aguardando"],
+ ["Treinamento","Equipe emitindo nota e lendo relatório com acompanhamento.","aguardando"],
+ ["Acompanhamento","Manual publicado e dois fechamentos acompanhados.","aguardando"]];
+const CAPS_PADRAO=["Rotina de entrada de mercadoria","Rotina de saída e baixa de estoque",
+ "Emissão de nota fiscal","Fechamento mensal e envio ao contador","Leitura dos relatórios"];
+
+let sessao=null, ehAdmin=false, atual=null, lista=[], sel=0;
+const $=id=>document.getElementById(id);
+const esc=s=>(s||"").replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+const brDate=iso=>{if(!iso)return"";const[a,m,d]=iso.split("-");return d+"/"+m+"/"+a};
+const hhmm=h=>h?h.slice(0,5):"";
+const uid=()=>(window.crypto&&crypto.randomUUID)?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
+const hoje=()=>new Date().toISOString().slice(0,10);
+
+function aviso(msg,ruim){
+  const d=document.createElement("div");d.textContent=msg;
+  d.style.cssText="position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:"+(ruim?"#7B1E32":"#2F6B4F")+
+  ";color:#FFFDFA;padding:14px 22px;border-radius:4px;font-family:Jost;font-weight:500;font-size:14.5px;z-index:99;max-width:90vw;text-align:center;box-shadow:0 10px 30px -12px rgba(0,0,0,.5)";
+  document.body.appendChild(d);setTimeout(()=>d.remove(),3200);
+}
+function checar({error}){ if(error){aviso("Não consegui salvar: "+error.message,true);return false} return true }
+
+async function iniciar(){
+  const {data}=await sb.auth.getSession();
+  sessao=data.session;
+  ehAdmin=!!sessao && sessao.user.email===EMAIL_CONSULTORA;
+  await rota();
+}
+async function rota(){
+  let h=(location.hash||"#/").split("#")[1]||"/";
+  const ancora=(location.hash.match(/#\/#(.+)$/)||[])[1];
+  if(ancora)h="/";
+  if((h==="/minha-area"||h==="/painel") && !sessao){location.hash="#/entrar";return}
+  if(h==="/painel" && !ehAdmin){location.hash="#/minha-area";return}
+  if(h==="/minha-area" && ehAdmin){location.hash="#/painel";return}
+  ["v-site","v-entrar","v-area","v-painel"].forEach(v=>$(v).classList.remove("on"));
+  const logado=(h==="/minha-area"||h==="/painel");
+  $("topo-site").style.display=logado?"none":"";
+  $("topo-app").style.display=logado?"":"none";
+  if(h==="/minha-area"){ $("v-area").classList.add("on");$("app-sub").textContent="MINHA ÁREA"; await carregarMinhaArea(); }
+  else if(h==="/painel"){ $("v-painel").classList.add("on");$("app-sub").textContent="PAINEL";
+    $("app-quem").textContent="Fátima Pinheiro";$("app-quem2").textContent="consultora"; await carregarPainel(); }
+  else if(h==="/entrar"){ $("v-entrar").classList.add("on"); }
+  else { $("v-site").classList.add("on"); }
+  if(ancora){const el=$(ancora);if(el)setTimeout(()=>el.scrollIntoView(),40)} else window.scrollTo(0,0);
+}
+window.addEventListener("hashchange",rota);
+
+async function entrar(){
+  const b=$("btn-entrar");const email=$("usuario").value.trim();const s=$("codigo").value;
+  if(!email||!s){$("erro").textContent="Preencha os dois campos.";$("erro").style.display="block";return}
+  if(!email.includes("@")){$("erro").textContent="Digite o e-mail completo, com @.";$("erro").style.display="block";return}
+  b.disabled=true;b.textContent="Entrando…";
+  const {data,error}=await sb.auth.signInWithPassword({email,password:s});
+  b.disabled=false;b.textContent="Entrar";
+  if(error){$("erro").textContent="E-mail ou código não confere.";$("erro").style.display="block";return}
+  $("erro").style.display="none";$("codigo").value="";
+  sessao=data.session; ehAdmin=sessao.user.email===EMAIL_CONSULTORA;
+  const destino = ehAdmin ? "#/painel" : "#/minha-area";
+  if(location.hash===destino) rota(); else location.hash=destino;
+}
+async function sair(){ await sb.auth.signOut(); sessao=null;ehAdmin=false;atual=null;
+  $("usuario").value="";$("codigo").value="";location.hash="#/"; rota(); }
+
+function aba(qual,i,el){
+  el.parentElement.querySelectorAll(".aba").forEach(a=>a.classList.remove("on"));el.classList.add("on");
+  document.querySelectorAll("#"+(qual==="c"?"v-area":"v-painel")+" .pane").forEach((p,k)=>p.classList.toggle("on",k===i));
+}
+
+async function buscarCliente(id){
+  const [e,en,c,p,h,aj,im,cb]=await Promise.all([
+    sb.from("etapas").select("*").eq("cliente_id",id).order("ordem"),
+    sb.from("encontros").select("*").eq("cliente_id",id).order("data"),
+    sb.from("capitulos").select("*").eq("cliente_id",id).order("ordem"),
+    sb.from("pendencias").select("*").eq("cliente_id",id).order("id"),
+    sb.from("apontamentos_horas").select("*").eq("cliente_id",id).order("data",{ascending:false}),
+    sb.from("ajustes_horas").select("*").eq("cliente_id",id).order("data",{ascending:false}),
+    sb.from("capitulo_imagens").select("*").eq("cliente_id",id).order("ordem"),
+    sb.from("cobrancas").select("*").eq("cliente_id",id).order("numero",{ascending:false})]);
+  const imagens=await assinarImagens(im.data||[]);
+  return {etapas:e.data||[],encontros:en.data||[],capitulos:c.data||[],pendencias:p.data||[],horas:h.data||[],ajustes:aj.data||[],imagens,cobrancas:cb.data||[]};
+}
+async function assinarImagens(linhas){
+  if(!linhas.length)return linhas;
+  const {data,error}=await sb.storage.from("manual").createSignedUrls(linhas.map(l=>l.path),3600);
+  if(error)return linhas.map(l=>({...l,urlAssinada:null}));
+  return linhas.map((l,i)=>({...l,urlAssinada:data[i]?.signedUrl||null}));
+}
+function horasInfo(c){
+  const contratadas=+c.horas_contratadas||0;
+  const usadas=c.horas.reduce((s,h)=>s+ +h.horas,0);
+  const disponiveis=contratadas-usadas;
+  const pct=contratadas?Math.min(100,Math.round(usadas/contratadas*100)):0;
+  return {contratadas,usadas,disponiveis,pct};
+}
+function horasPorEtapa(c,etapaId){
+  return c.horas.filter(h=>h.etapa_id===etapaId).reduce((s,h)=>s+ +h.horas,0);
+}
+
+async function carregarMinhaArea(){
+  $("p-nome").textContent="Carregando…";
+  const {data,error}=await sb.from("clientes").select("*").eq("user_id",sessao.user.id).maybeSingle();
+  if(error||!data){
+    $("p-nome").textContent="Sua empresa ainda não foi vinculada";
+    $("p-info").textContent="Chame no WhatsApp (84) 99637-7185 para eu liberar seu acesso.";
+    return;
+  }
+  atual={...data,...(await buscarCliente(data.id))};
+  $("app-quem").textContent=atual.nome;$("app-quem2").textContent="CNPJ "+atual.cnpj;
+  renderCliente();
+}
+
+function renderCliente(){
+  const c=atual;
+  $("p-nome").textContent=c.nome;
+  $("p-info").textContent="CNPJ "+c.cnpj+(c.sistema?" · Sistema: "+c.sistema:"")+(c.desde?" · Cliente desde "+c.desde:"");
+
+  /* progresso */
+  const total=c.etapas.length, feitas=c.etapas.filter(e=>e.status==="concluida").length;
+  const pct=total?Math.round(feitas/total*100):0;
+  $("p-anel").style.setProperty("--p",pct);
+  $("p-pct").textContent=pct+"%";
+  const at=c.etapas.find(e=>e.status==="andamento");
+  if(pct===100){
+    $("p-etapa").textContent="Consultoria concluída";
+    $("p-etapa-desc").textContent="As "+total+" etapas foram finalizadas. Seu manual continua disponível aqui.";
+  }else if(at){
+    $("p-etapa").textContent="Etapa "+at.ordem+" de "+total+" — "+at.nome;
+    $("p-etapa-desc").textContent=at.descricao||"";
+  }else{
+    $("p-etapa").textContent=feitas+" de "+total+" etapas concluídas";
+    $("p-etapa-desc").textContent="Nenhuma etapa em andamento no momento.";
+  }
+
+  /* horas do pacote */
+  const info=horasInfo(c);
+  if(info.contratadas>0){
+    $("p-horas-box").style.display="";
+    $("p-horas-box").classList.toggle("excedido",info.disponiveis<0);
+    $("p-anel-horas").style.setProperty("--p",info.pct);
+    $("p-horas-pct").textContent=info.pct+"%";
+    $("p-horas-tit").textContent=info.usadas+"h usadas de "+info.contratadas+"h contratadas";
+    $("p-horas-desc").textContent=info.disponiveis>=0?info.disponiveis+"h disponíveis no projeto":
+      "Pacote excedido em "+Math.abs(info.disponiveis)+"h — fale com a consultoria.";
+    $("p-horas-hist").innerHTML=c.ajustes.length?"Histórico: "+c.ajustes.map(a=>
+      "+"+a.horas+"h em "+brDate(a.data)+(a.motivo?" ("+esc(a.motivo)+")":"")).join(" · "):"";
+  }else{ $("p-horas-box").style.display="none"; }
+
+  /* linha do tempo */
+  $("p-tl").innerHTML=c.etapas.map(e=>{
+    const cls=e.status==="concluida"?"feito":e.status==="andamento"?"agora":"espera";
+    const rot=e.status==="concluida"?'<span class="tag feito">concluída</span>':
+              e.status==="andamento"?'<span class="tag agora">em andamento</span>':
+              '<span class="tag espera">a iniciar</span>';
+    const horasEtapa=horasPorEtapa(c,e.id);
+    const pctEtapa=info.contratadas?Math.round(horasEtapa/info.contratadas*100):0;
+    const lancamentos=c.horas.filter(h=>h.etapa_id===e.id);
+    return `<div class="tl-item ${cls}"><span class="dot"></span>
+      <h4><span class="num">ETAPA 0${e.ordem}</span>${esc(e.nome)} ${rot}</h4>
+      <p>${esc(e.descricao)}</p>
+      ${horasEtapa?`<div class="hbar"><i style="width:${Math.min(100,pctEtapa)}%"></i></div>
+      <p class="mono" style="font-size:12.5px;color:var(--cinza-claro);margin-top:6px">${horasEtapa}h usadas nesta etapa${info.contratadas?" · "+pctEtapa+"% do pacote":""}</p>`:""}
+      ${lancamentos.length?`<div class="horas-lista">${lancamentos.map(h=>
+        `<div class="horas-item"><span><b>${brDate(h.data)}</b>${h.horas}h${h.comentario?" — "+esc(h.comentario):""}</span></div>`).join("")}</div>`:""}
+      </div>`;
+  }).join("")||`<p style="color:var(--cinza)">Etapas ainda não definidas.</p>`;
+
+  const feitos=c.encontros.filter(e=>e.situacao==="realizado");
+  $("p-hist").innerHTML=feitos.length?feitos.map(h=>
+    `<div class="item"><div class="data">${brDate(h.data)}</div><div><h4>${esc(h.titulo)}</h4><p>${esc(h.detalhe)}</p></div><div><span class="tag feito">realizado</span></div></div>`).join("")
+    :`<p style="color:var(--cinza)">Nenhum encontro registrado ainda.</p>`;
+
+  const ag=c.encontros.filter(e=>e.situacao!=="realizado");
+  const prox=ag.find(a=>a.data>=hoje())||ag[0];
+  $("p-prox").textContent=prox?brDate(prox.data)+(prox.hora?", "+hhmm(prox.hora):"")+" — "+prox.titulo:"Nada marcado no momento";
+  $("p-prox-desc").textContent=prox?(prox.detalhe||""):"Me chame no WhatsApp para marcar a próxima visita.";
+  $("p-agenda").innerHTML=ag.length?ag.map(a=>
+    `<div class="item"><div class="data">${brDate(a.data)}${a.hora?" · "+hhmm(a.hora):""}</div>
+     <div><h4>${esc(a.titulo)}</h4><p>${esc(a.detalhe)}</p></div>
+     <div><span class="tag ${a.situacao==="confirmado"?"neutro":"espera"}">${a.situacao==="confirmado"?"confirmado":"a confirmar"}</span></div></div>`).join("")
+    :`<p style="color:var(--cinza)">Nenhuma data marcada.</p>`;
+
+  const ult=c.capitulos.map(k=>k.atualizado_em).filter(Boolean).sort().pop();
+  $("p-manual-versao").textContent=ult?"Atualizado em "+new Date(ult).toLocaleDateString("pt-BR"):"Em construção";
+  renderManual();
+  $("p-tarefas").innerHTML=c.pendencias.length?c.pendencias.map(t=>
+    `<label class="tarefa${t.concluida?" feita":""}"><input type="checkbox" ${t.concluida?"checked":""}
+      onchange="marcarPendencia('${t.id}',this.checked)"><span>${esc(t.texto)}</span></label>`).join("")
+    :`<p style="color:var(--cinza)">Nada pendente por aqui.</p>`;
+}
+function renderManual(){
+  const c=atual,q=($("p-busca").value||"").trim().toLowerCase();
+  const caps=c.capitulos.filter(k=>!q||((k.titulo||"")+" "+(k.conteudo||"")).toLowerCase().includes(q));
+  if(!caps.length){$("p-manual").innerHTML=`<p style="color:var(--cinza)">Nada encontrado para “${esc(q)}”. Tente outra palavra — se a dúvida for nova, me chame e eu escrevo um capítulo sobre ela.</p>`;return}
+  const marca=t=>{if(!q)return esc(t);return esc(t).replace(new RegExp("("+q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","gi"),"<mark>$1</mark>")};
+  $("p-manual").innerHTML=caps.map(k=>{
+    const imgs=c.imagens.filter(im=>im.capitulo_id===k.id&&im.urlAssinada);
+    const galeria=imgs.length?`<div class="img-grid">${imgs.map(im=>
+      `<a href="${im.urlAssinada}" target="_blank" rel="noopener"><img src="${im.urlAssinada}" loading="lazy" alt="${esc(k.titulo)}"></a>`).join("")}</div>`:"";
+    return `<div class="cap${q?" aberto":""}"><button onclick="this.parentElement.classList.toggle('aberto')">
+      <span><span class="num">${String(c.capitulos.indexOf(k)+1).padStart(2,"0")}</span>${marca(k.titulo)}</span><span class="sinal">+</span></button>
+      <div class="corpo">${k.conteudo?marca(k.conteudo):'<span style="color:var(--cinza-claro)">Este capítulo ainda será escrito na próxima visita.</span>'}${galeria}</div></div>`;
+  }).join("");
+}
+async function marcarPendencia(id,valor){
+  const {error}=await sb.from("pendencias").update({concluida:valor}).eq("id",id);
+  if(error)aviso("Não consegui salvar: "+error.message,true);
+}
+
+let configPagamento="";
+async function carregarPainel(){
+  const {data,error}=await sb.from("clientes").select("*").order("nome");
+  if(error){aviso("Erro ao carregar: "+error.message,true);return}
+  const cfg=await sb.from("config_consultoria").select("valor").eq("chave","dados_pagamento").maybeSingle();
+  configPagamento=cfg.data?.valor||"";
+  lista=data||[];
+  if(!lista.length){$("sel-cliente").innerHTML='<option>nenhum cliente cadastrado</option>';atual=null;
+    ["a-agenda","a-etapas","a-manual","a-tarefas","cb-itens","cb-historico"].forEach(i=>$(i).innerHTML="");return}
+  if(sel>=lista.length)sel=0;
+  $("sel-cliente").innerHTML=lista.map((c,i)=>`<option value="${i}"${i===sel?" selected":""}>${esc(c.nome)}</option>`).join("");
+  await selecionar(sel);
+}
+async function selecionar(i){
+  sel=+i; const base=lista[sel]; if(!base)return;
+  atual={...base,...(await buscarCliente(base.id))};
+  renderAdmin();
+}
+function renderAdmin(){
+  const c=atual;
+  $("f-nome").value=c.nome||"";$("f-cnpj").value=c.cnpj||"";$("f-sistema").value=c.sistema||"";
+  $("f-desde").value=c.desde||"";$("f-contato").value=c.contato||"";$("f-uid").value=c.user_id||"";
+  $("f-valor-hora").value=c.valor_hora||"";
+  $("a-agenda").innerHTML=c.encontros.map(a=>
+    `<div class="linha-adm"><div><b style="font-family:Jost;font-weight:500;font-size:16px">${brDate(a.data)}${a.hora?" · "+hhmm(a.hora):""} — ${esc(a.titulo)}</b><br>
+     <span style="color:var(--cinza);font-size:14.5px">${esc(a.detalhe)}</span></div>
+     <div class="acoes-mini"><span class="tag ${a.situacao==="realizado"?"feito":a.situacao==="confirmado"?"neutro":"espera"}">${a.situacao==="a_confirmar"?"a confirmar":a.situacao}</span>
+     ${a.situacao!=="realizado"?`<button class="btn mini" onclick="situacao('${a.id}','realizado')">Marcar como realizado</button>
+       <button class="btn ghost mini" onclick="situacao('${a.id}','${a.situacao==="confirmado"?"a_confirmar":"confirmado"}')">Alternar</button>`:""}
+     <button class="btn perigo mini" onclick="removerEncontro('${a.id}')">Remover</button></div></div>`).join("")
+    ||`<p style="color:var(--cinza)">Nenhum encontro marcado.</p>`;
+  const feitas=c.etapas.filter(e=>e.status==="concluida").length;
+  const info=horasInfo(c);
+  $("f-horas").textContent=info.contratadas+"h contratadas · "+info.usadas+"h usadas · "+
+    (info.disponiveis>=0?info.disponiveis+"h disponíveis":"excedido em "+Math.abs(info.disponiveis)+"h");
+  $("a-horas-hist").innerHTML=c.ajustes.length?c.ajustes.map(a=>
+    `<div class="linha-adm"><span>+${a.horas}h em ${brDate(a.data)}${a.motivo?" — "+esc(a.motivo):""}</span>
+     <button class="btn perigo mini" onclick="removerAjuste('${a.id}')">Remover</button></div>`).join("")
+    :`<p style="color:var(--cinza)">Nenhum acréscimo ainda — use o botão acima para lançar o pacote inicial.</p>`;
+  $("a-etapas").innerHTML=
+    `<div class="progresso" style="margin-bottom:16px"><div class="anel" style="--p:${c.etapas.length?Math.round(feitas/c.etapas.length*100):0}">
+      <span>${c.etapas.length?Math.round(feitas/c.etapas.length*100):0}%</span></div>
+      <div class="txt"><h3>${feitas} de ${c.etapas.length} etapas concluídas</h3>
+      <p>É este número que o cliente vê ao entrar.</p></div></div>`+
+    `<div class="progresso" style="margin-bottom:22px"><div class="anel vinho" style="--p:${info.pct}">
+      <span>${info.pct}%</span></div>
+      <div class="txt"><h3>${info.usadas}h usadas de ${info.contratadas}h contratadas</h3>
+      <p>${info.disponiveis>=0?info.disponiveis+"h disponíveis no pacote":"Pacote excedido em "+Math.abs(info.disponiveis)+"h"}</p></div></div>`+
+    c.etapas.map(e=>{
+      const horasEtapa=horasPorEtapa(c,e.id);
+      const pctEtapa=info.contratadas?Math.round(horasEtapa/info.contratadas*100):0;
+      const lancamentos=c.horas.filter(h=>h.etapa_id===e.id);
+      return `<div class="linha-adm" style="align-items:flex-start"><div>
+       <b style="font-family:Jost;font-weight:500;font-size:16px">Etapa 0${e.ordem} — ${esc(e.nome)}</b>
+       <span class="tag ${e.status==="concluida"?"feito":e.status==="andamento"?"agora":"espera"}" style="margin-left:8px">${e.status==="concluida"?"concluída":e.status==="andamento"?"em andamento":"a iniciar"}</span><br>
+       <span style="color:var(--cinza);font-size:14.5px">${esc(e.descricao)}</span>
+       ${horasEtapa?`<p class="mono" style="font-size:12.5px;color:var(--cinza-claro);margin:8px 0 0">${horasEtapa}h apontadas${info.contratadas?" · "+pctEtapa+"% do pacote":""}</p>`:""}
+       ${lancamentos.length?`<div class="horas-lista">${lancamentos.map(h=>
+         `<div class="horas-item"><span><b>${brDate(h.data)}</b>${h.horas}h${h.comentario?" — "+esc(h.comentario):""}</span>
+          <button class="btn perigo mini" onclick="removerApontamento('${h.id}')">Remover</button></div>`).join("")}</div>`:""}
+       <div class="horas-form">
+         <input type="date" id="ah-data-${e.id}" value="${hoje()}" class="mono">
+         <input type="number" min="0" step="0.5" id="ah-horas-${e.id}" placeholder="Horas">
+         <input id="ah-coment-${e.id}" placeholder="O que foi feito nessas horas">
+         <button class="btn mini" onclick="addApontamento('${e.id}')">Registrar horas</button>
+       </div>
+       <div style="margin-top:14px">
+       ${e.status!=="concluida"?`<button class="btn ghost mini" onclick="concluirEtapa('${e.id}')">Concluir e iniciar a próxima</button>`:
+         `<button class="btn ghost mini" onclick="statusEtapa('${e.id}','andamento')">Reabrir</button>`}
+       </div></div></div>`;
+    }).join("");
+  $("a-manual").innerHTML=c.capitulos.map((k,i)=>{
+    const imgs=c.imagens.filter(im=>im.capitulo_id===k.id);
+    const galeria=imgs.length?`<div class="img-grid" style="margin-top:14px">${imgs.map(im=>
+      `<div class="miniatura">${im.urlAssinada?`<img src="${im.urlAssinada}">`:'<div class="img-erro">sem prévia</div>'}
+       <button class="btn perigo mini" onclick="removerImagemCap('${im.id}','${im.path}')">×</button></div>`).join("")}</div>`:"";
+    return `<div class="box"><div class="linha-adm" style="border:none;padding:0 0 12px">
+      <b style="font-family:Jost;font-weight:500;font-size:16px"><span class="mono" style="color:var(--cinza-claro);font-size:12px;margin-right:10px">${String(i+1).padStart(2,"0")}</span>${esc(k.titulo)}</b>
+      <div class="acoes-mini"><button class="btn mini" onclick="salvarCap('${k.id}',${i})">Salvar</button>
+      <button class="btn perigo mini" onclick="removerCap('${k.id}')">Excluir</button></div></div>
+      <input id="cap-t-${i}" value="${esc(k.titulo)}">
+      <textarea id="cap-x-${i}" style="margin-top:10px">${esc(k.conteudo)}</textarea>
+      <label class="f">Imagens (ideal: pelo menos 3)</label>
+      ${galeria}
+      <div class="acoes-mini" style="margin-top:${imgs.length?"12px":"0"}">
+        <input type="file" accept="image/*" multiple id="img-in-${k.id}">
+        <button class="btn ghost mini" onclick="uploadImagensCap('${k.id}')">Adicionar imagens</button>
+      </div></div>`;
+  }).join("")
+    ||`<p style="color:var(--cinza)">Sem capítulos.</p>`;
+  $("a-tarefas").innerHTML=c.pendencias.map(t=>
+    `<div class="linha-adm"><span${t.concluida?' style="text-decoration:line-through;color:var(--cinza-claro)"':""}>${esc(t.texto)}</span>
+     <div class="acoes-mini">${t.concluida?'<span class="tag feito">feita</span>':""}
+     <button class="btn perigo mini" onclick="removerPendencia('${t.id}')">Remover</button></div></div>`).join("")
+    ||`<p style="color:var(--cinza)">Nenhuma pendência.</p>`;
+
+  $("cb-resultado").style.display="none";$("cb-resultado").innerHTML="";
+  $("cb-valor-hora").value=c.valor_hora||"";
+  $("cb-data").value=hoje();
+  $("cb-pagamento").value=configPagamento;
+  $("cb-obs").value="";
+  const naoCobradas=c.horas.filter(h=>!h.cobranca_id).sort((a,b)=>a.data.localeCompare(b.data));
+  $("cb-itens").innerHTML=naoCobradas.length?naoCobradas.map(h=>{
+    const etapa=c.etapas.find(e=>e.id===h.etapa_id);
+    return `<label class="tarefa"><input type="checkbox" checked value="${h.id}" data-horas="${h.horas}" onchange="recalcularCobranca()">
+      <span><b class="mono" style="font-size:12.5px">${brDate(h.data)}</b> · ${h.horas}h${etapa?" · "+esc(etapa.nome):""}${h.comentario?" — "+esc(h.comentario):""}</span></label>`;
+  }).join(""):`<p style="color:var(--cinza)">Nenhuma hora pendente de cobrança.</p>`;
+  recalcularCobranca();
+  $("cb-historico").innerHTML=c.cobrancas.length?c.cobrancas.map(cb=>
+    `<div class="linha-adm"><div><b style="font-family:Jost;font-weight:500;font-size:16px">Nº ${String(cb.numero).padStart(4,"0")} — ${brDate(cb.data_emissao)}</b><br>
+     <span style="color:var(--cinza);font-size:14.5px">${(+cb.total_horas).toFixed(1)}h · R$ ${(+cb.total_valor).toFixed(2)}</span></div>
+     <div class="acoes-mini"><button class="btn ghost mini" onclick="verCobranca('${cb.id}')">Ver / imprimir</button></div></div>`).join("")
+    :`<p style="color:var(--cinza)">Nenhuma cobrança gerada ainda.</p>`;
+}
+function recalcularCobranca(){
+  const valorHora=parseFloat($("cb-valor-hora").value)||0;
+  let horas=0;
+  document.querySelectorAll("#cb-itens input[type=checkbox]:checked").forEach(cb=>horas+=parseFloat(cb.dataset.horas));
+  $("cb-totais").innerHTML=`<b>${horas.toFixed(1)}h</b> selecionadas × R$ ${valorHora.toFixed(2)}/h = <b>R$ ${(horas*valorHora).toFixed(2)}</b>`;
+}
+
+async function salvarCliente(){
+  const r=await sb.from("clientes").update({
+    nome:$("f-nome").value.trim(), cnpj:$("f-cnpj").value.replace(/\D/g,""),
+    sistema:$("f-sistema").value.trim(), desde:$("f-desde").value.trim(),
+    contato:$("f-contato").value.trim(), user_id:$("f-uid").value.trim()||null,
+    valor_hora:$("f-valor-hora").value?parseFloat($("f-valor-hora").value):null
+  }).eq("id",atual.id);
+  if(!checar(r))return;
+  aviso("Dados salvos.");await carregarPainel();
+}
+async function novoCliente(){
+  const nome=prompt("Nome da empresa:");if(!nome)return;
+  const cnpj=(prompt("CNPJ (só números):")||"").replace(/\D/g,"");if(!cnpj)return;
+  const uid=prompt("UID do usuário (Supabase → Authentication → Users). Pode deixar em branco e preencher depois:")||null;
+  const {data,error}=await sb.from("clientes").insert({nome,cnpj,user_id:uid||null}).select().single();
+  if(error){aviso("Não consegui criar: "+error.message,true);return}
+  await sb.from("etapas").insert(ETAPAS_PADRAO.map((e,i)=>({cliente_id:data.id,ordem:i+1,nome:e[0],descricao:e[1],status:e[2]})));
+  await sb.from("capitulos").insert(CAPS_PADRAO.map((t,i)=>({cliente_id:data.id,ordem:i+1,titulo:t,conteudo:""})));
+  aviso("Cliente criado com etapas e capítulos padrão.");
+  await carregarPainel();
+  const idx=lista.findIndex(c=>c.id===data.id); if(idx>=0){sel=idx;$("sel-cliente").value=idx;await selecionar(idx)}
+}
+async function addEncontro(){
+  const d=$("g-data").value;if(!d){aviso("Escolha a data.",true);return}
+  const r=await sb.from("encontros").insert({cliente_id:atual.id,data:d,hora:$("g-hora").value||null,
+    titulo:$("g-titulo").value.trim()||"Encontro",detalhe:$("g-desc").value.trim(),situacao:$("g-status").value});
+  if(!checar(r))return;
+  $("g-titulo").value="";$("g-desc").value="";
+  aviso("Encontro marcado. Já aparece para o cliente.");await selecionar(sel);
+}
+async function situacao(id,nova){
+  const r=await sb.from("encontros").update({situacao:nova}).eq("id",id);
+  if(checar(r))await selecionar(sel);
+}
+async function removerEncontro(id){
+  if(!confirm("Remover este encontro?"))return;
+  const r=await sb.from("encontros").delete().eq("id",id);
+  if(checar(r))await selecionar(sel);
+}
+async function statusEtapa(id,st){
+  const r=await sb.from("etapas").update({status:st}).eq("id",id);
+  if(checar(r))await selecionar(sel);
+}
+async function concluirEtapa(id){
+  const atualEt=atual.etapas.find(e=>e.id===id);
+  await sb.from("etapas").update({status:"concluida"}).eq("id",id);
+  const prox=atual.etapas.find(e=>e.ordem>atualEt.ordem && e.status!=="concluida");
+  if(prox)await sb.from("etapas").update({status:"andamento"}).eq("id",prox.id);
+  aviso("Etapa concluída. A próxima entrou em andamento.");await selecionar(sel);
+}
+async function addCapitulo(){
+  const t=$("m-titulo").value.trim();if(!t){aviso("Dê um título ao capítulo.",true);return}
+  const ordem=(atual.capitulos.at(-1)?.ordem||0)+1;
+  const r=await sb.from("capitulos").insert({cliente_id:atual.id,ordem,titulo:t,conteudo:$("m-texto").value,atualizado_em:new Date().toISOString()});
+  if(!checar(r))return;
+  $("m-titulo").value="";$("m-texto").value="";
+  aviso("Capítulo publicado no manual do cliente.");await selecionar(sel);
+}
+async function salvarCap(id,i){
+  const r=await sb.from("capitulos").update({titulo:$("cap-t-"+i).value.trim(),
+    conteudo:$("cap-x-"+i).value,atualizado_em:new Date().toISOString()}).eq("id",id);
+  if(!checar(r))return;
+  aviso("Capítulo atualizado. O cliente já vê a versão nova.");await selecionar(sel);
+}
+async function removerCap(id){
+  if(!confirm("Excluir este capítulo do manual?"))return;
+  const r=await sb.from("capitulos").delete().eq("id",id);
+  if(checar(r))await selecionar(sel);
+}
+async function addPendencia(){
+  const t=$("t-texto").value.trim();if(!t)return;
+  const r=await sb.from("pendencias").insert({cliente_id:atual.id,texto:t});
+  if(!checar(r))return;
+  $("t-texto").value="";await selecionar(sel);
+}
+async function removerPendencia(id){
+  const r=await sb.from("pendencias").delete().eq("id",id);
+  if(checar(r))await selecionar(sel);
+}
+
+async function uploadImagensCap(capituloId){
+  const input=$("img-in-"+capituloId);
+  const arquivos=Array.from(input.files||[]);
+  if(!arquivos.length){aviso("Escolha ao menos uma imagem.",true);return}
+  let ordem=atual.imagens.filter(im=>im.capitulo_id===capituloId).length;
+  for(const f of arquivos){
+    if(f.size>8*1024*1024){aviso("\""+f.name+"\" passa de 8MB e foi ignorada.",true);continue}
+    const nomeSeguro=f.name.replace(/[^a-zA-Z0-9.\-_]/g,"_");
+    const path=atual.id+"/"+capituloId+"/"+uid()+"-"+nomeSeguro;
+    const up=await sb.storage.from("manual").upload(path,f);
+    if(up.error){aviso("Não consegui enviar \""+f.name+"\": "+up.error.message,true);continue}
+    const r=await sb.from("capitulo_imagens").insert({cliente_id:atual.id,capitulo_id:capituloId,path,ordem});
+    if(r.error){aviso("Imagem enviada, mas não salvei o registro: "+r.error.message,true);continue}
+    ordem++;
+  }
+  input.value="";
+  aviso("Imagens adicionadas.");await selecionar(sel);
+}
+async function removerImagemCap(id,path){
+  if(!confirm("Remover esta imagem?"))return;
+  await sb.storage.from("manual").remove([path]);
+  const r=await sb.from("capitulo_imagens").delete().eq("id",id);
+  if(checar(r))await selecionar(sel);
+}
+
+async function addApontamento(etapaId){
+  const horasEl=$("ah-horas-"+etapaId),comentEl=$("ah-coment-"+etapaId),dataEl=$("ah-data-"+etapaId);
+  const horas=parseFloat(horasEl.value);
+  if(!horas||horas<=0){aviso("Informe quantas horas foram usadas.",true);return}
+  const r=await sb.from("apontamentos_horas").insert({cliente_id:atual.id,etapa_id:etapaId,horas,
+    comentario:comentEl.value.trim(),data:dataEl.value||hoje()});
+  if(!checar(r))return;
+  aviso("Horas registradas. Já aparecem para o cliente.");await selecionar(sel);
+}
+async function removerApontamento(id){
+  if(!confirm("Remover este apontamento de horas?"))return;
+  const r=await sb.from("apontamentos_horas").delete().eq("id",id);
+  if(checar(r))await selecionar(sel);
+}
+async function adicionarHoras(){
+  const qtd=parseFloat(prompt("Quantas horas adicionar ao pacote?","10"));
+  if(!qtd||qtd<=0){aviso("Informe um número de horas maior que zero.",true);return}
+  const motivo=(prompt("Motivo (o cliente vê isso no histórico do pacote):")||"").trim();
+  const r=await sb.from("ajustes_horas").insert({cliente_id:atual.id,horas:qtd,motivo});
+  if(!checar(r))return;
+  const novoTotal=(+atual.horas_contratadas||0)+qtd;
+  const r2=await sb.from("clientes").update({horas_contratadas:novoTotal}).eq("id",atual.id);
+  if(!checar(r2))return;
+  aviso(qtd+"h adicionadas ao pacote.");await selecionar(sel);
+}
+async function removerAjuste(id){
+  const aj=atual.ajustes.find(a=>a.id===id);if(!aj)return;
+  if(!confirm("Remover este acréscimo de "+aj.horas+"h? Isso também reduz o total do pacote."))return;
+  const r=await sb.from("ajustes_horas").delete().eq("id",id);
+  if(!checar(r))return;
+  const novoTotal=(+atual.horas_contratadas||0)-(+aj.horas);
+  const r2=await sb.from("clientes").update({horas_contratadas:novoTotal}).eq("id",atual.id);
+  if(!checar(r2))return;
+  await selecionar(sel);
+}
+
+async function gerarCobranca(){
+  const ids=Array.from(document.querySelectorAll("#cb-itens input[type=checkbox]:checked")).map(cb=>cb.value);
+  if(!ids.length){aviso("Selecione ao menos um lançamento de horas.",true);return}
+  const valorHora=parseFloat($("cb-valor-hora").value);
+  if(!valorHora||valorHora<=0){aviso("Informe o valor da hora.",true);return}
+  const pagamento=$("cb-pagamento").value.trim();
+  const dataEmissao=$("cb-data").value||hoje();
+  const itens=atual.horas.filter(h=>ids.includes(h.id));
+  const totalHoras=itens.reduce((s,h)=>s+ +h.horas,0);
+  const totalValor=totalHoras*valorHora;
+  const r=await sb.from("cobrancas").insert({cliente_id:atual.id,data_emissao:dataEmissao,valor_hora:valorHora,
+    total_horas:totalHoras,total_valor:totalValor,dados_pagamento:pagamento,observacao:$("cb-obs").value.trim()
+  }).select().single();
+  if(!checar(r))return;
+  const r2=await sb.from("apontamentos_horas").update({cobranca_id:r.data.id}).in("id",ids);
+  if(!checar(r2))return;
+  if(pagamento&&pagamento!==configPagamento){
+    await sb.from("config_consultoria").upsert({chave:"dados_pagamento",valor:pagamento});
+    configPagamento=pagamento;
+  }
+  aviso("Cobrança gerada.");
+  const novoId=r.data.id;
+  await selecionar(sel);
+  verCobranca(novoId);
+}
+function verCobranca(id){
+  const cb=atual.cobrancas.find(x=>x.id===id);if(!cb)return;
+  const c=atual;
+  const itens=c.horas.filter(h=>h.cobranca_id===id).sort((a,b)=>a.data.localeCompare(b.data));
+  $("cb-resultado").innerHTML=`<div class="box">
+    <div class="linha-adm no-print" style="border:none;padding:0 0 16px">
+      <b>Cobrança nº ${String(cb.numero).padStart(4,"0")}</b>
+      <div class="acoes-mini">
+        <button class="btn ghost mini" onclick="window.print()">Imprimir ou salvar em PDF</button>
+        <button class="btn ghost mini" onclick="document.getElementById('cb-resultado').style.display='none'">Fechar</button>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-bottom:26px">
+      <div><span class="rotulo">em ordem</span><h2 style="margin-top:6px">Cobrança de horas</h2></div>
+      <div style="text-align:right">
+        <div class="mono" style="font-size:13px;color:var(--cinza)">Nº ${String(cb.numero).padStart(4,"0")}</div>
+        <div class="mono" style="font-size:13px;color:var(--cinza)">${brDate(cb.data_emissao)}</div>
+      </div>
+    </div>
+    <div class="col2" style="margin-bottom:22px">
+      <div><label class="f">Cobrado de</label><p style="margin:4px 0">${esc(c.nome)}${c.cnpj?"<br>CNPJ "+esc(c.cnpj):""}</p></div>
+      <div><label class="f">Emitido por</label><p style="margin:4px 0">Fátima Pinheiro<br>Consultoria em estoque, notas fiscais e fechamento</p></div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;margin-top:10px">
+      <thead><tr style="border-bottom:1px solid var(--linha)">
+        <th style="text-align:left;padding:8px 6px;font-size:12px;color:var(--cinza-claro);text-transform:uppercase">Data</th>
+        <th style="text-align:left;padding:8px 6px;font-size:12px;color:var(--cinza-claro);text-transform:uppercase">Descrição</th>
+        <th style="text-align:right;padding:8px 6px;font-size:12px;color:var(--cinza-claro);text-transform:uppercase">Horas</th>
+        <th style="text-align:right;padding:8px 6px;font-size:12px;color:var(--cinza-claro);text-transform:uppercase">Valor</th>
+      </tr></thead>
+      <tbody>${itens.map(h=>{
+        const etapa=c.etapas.find(e=>e.id===h.etapa_id);
+        return `<tr style="border-bottom:1px solid var(--linha)">
+          <td class="mono" style="padding:10px 6px;font-size:13px">${brDate(h.data)}</td>
+          <td style="padding:10px 6px;font-size:14px">${esc(h.comentario||"—")}${etapa?`<br><span style="color:var(--cinza-claro);font-size:12px">${esc(etapa.nome)}</span>`:""}</td>
+          <td class="mono" style="padding:10px 6px;font-size:13px;text-align:right">${(+h.horas).toFixed(1)}h</td>
+          <td class="mono" style="padding:10px 6px;font-size:13px;text-align:right">R$ ${(+h.horas*cb.valor_hora).toFixed(2)}</td>
+        </tr>`;
+      }).join("")}</tbody>
+    </table>
+    <div style="display:flex;justify-content:flex-end;margin-top:18px">
+      <div style="text-align:right">
+        <div style="color:var(--cinza);font-size:13px">${(+cb.total_horas).toFixed(1)}h × R$ ${(+cb.valor_hora).toFixed(2)}/h</div>
+        <div style="font-family:Jost;font-size:26px;margin-top:4px">R$ ${(+cb.total_valor).toFixed(2)}</div>
+      </div>
+    </div>
+    ${cb.observacao?`<p style="margin-top:18px;color:var(--cinza);font-size:14px">${esc(cb.observacao)}</p>`:""}
+    <div class="aviso" style="margin-top:26px"><b>Dados para pagamento</b><br>${esc(cb.dados_pagamento||"").replace(/\n/g,"<br>")}</div>
+  </div>`;
+  $("cb-resultado").style.display="";
+  $("cb-resultado").scrollIntoView({behavior:"smooth"});
+}
+
+Object.assign(window,{entrar,sair,aba,selecionar,salvarCliente,novoCliente,addEncontro,situacao,
+ removerEncontro,concluirEtapa,statusEtapa,addCapitulo,salvarCap,removerCap,addPendencia,
+ removerPendencia,marcarPendencia,renderManual,addApontamento,removerApontamento,adicionarHoras,removerAjuste,
+ uploadImagensCap,removerImagemCap,recalcularCobranca,gerarCobranca,verCobranca});
+
+$("codigo").addEventListener("keydown",e=>{if(e.key==="Enter")entrar()});
+iniciar();
+</script>
+</body>
+</html>
